@@ -1,0 +1,5 @@
+GENERAL NOTES:
+follow the link below to find out how to use the joystick!
+https://docs.arduino.cc/built-in-examples/usb/JoystickMouseControl
+
+leds will work, just need to be programmed.
