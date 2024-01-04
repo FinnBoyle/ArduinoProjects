@@ -3,9 +3,9 @@
 #define VRY_PIN A1
 
 // Led Matrix setup
-int DIN = 11;
+int DIN = 12;
 int CS = 10;
-int CLK = 13;
+int CLK = 11;
 
 LedControl lc = LedControl(DIN, CLK, CS, 0);
 
@@ -27,12 +27,13 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   //lc.setLed(0, 0, 0, true);
-  /*
+
   xRead = analogRead(A0);
   yRead = analogRead(A1);
+  Serial.print("this is x: ");
   Serial.println(xRead);
-  Serial.print("Split");
-  Serial.print(yRead);
-  delay(500);
-  */
+  Serial.print("this is y: ");
+  Serial.println(yRead);
+  Serial.println();
+  delay(2000);
 }
