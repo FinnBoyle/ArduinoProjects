@@ -30,15 +30,19 @@ int j = 0;
 const int MAX = 7;
 const int MIN = 0;
 
+byte a[8] = {
+  B00000000,
+  B00011000,
+  B00100100,
+  B01000010,
+  B01111110,
+  B01000010,
+  B01000010,
+  B00000000
+};
+
 void loop() {
-  // put your main code here, to run repeatedly:
-  /*
-  lc.setLed(0, 0, 0, true);
-  delay(500);
-  lc.setLed(0, 0, 0, false);
-  delay(500);
-  */
-  if(digitalRead(CONF_BUTTON) == 0) {
+  /*if(digitalRead(CONF_BUTTON) == 0) {
     //increment vertical 'j' value. If at maximum, reset to minimum
     j = (j + 1) % (MAX + 1);
   } else if (digitalRead(LEFT_BUTTON) == 0) {
@@ -53,4 +57,12 @@ void loop() {
   lc.setLed(0, i, j, true);
   lc.setLed(0, i, j, false);
   delay(100);
+  */
+  for (int row = 0; row <8; row++) {
+    lc.setRow(0, row, a[row]);
+  }
+
+  delay(1000);
+  lc.clearDisplay(0);
+  delay(1000);
 }
