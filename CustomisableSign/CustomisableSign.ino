@@ -7,13 +7,15 @@
 int DIN = 12;
 int CS = 10;
 int CLK = 11;
-
 LedControl lc = LedControl(DIN, CLK, CS, 0);
 
+int pos = 0; //for alphanumeric selection
 //letter and number storage
-const int STORAGE_SIZE = 37;
+const int STORAGE_SIZE = 38;
 byte alphanumerics[STORAGE_SIZE][8] = {
-  { // space/blank
+  { // all on
+    B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111
+  }, { // space/blank
     B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000
   }, { // letter A
     B00000000, B00011000, B00100100, B01000010, B01111110, B01000010, B01000010, B00000000
@@ -91,8 +93,6 @@ byte alphanumerics[STORAGE_SIZE][8] = {
 };
 
 void setup() {
-  // put your setup code here, to run once:
-  // fill in the letters array later?
   Serial.begin(9600);
   lc.shutdown(0, false);
   lc.setIntensity(0, 8);
@@ -103,36 +103,25 @@ void setup() {
   pinMode(RIGHT_BUTTON, INPUT_PULLUP);
 }
 
-int i = 0;
-int j = 0;
-const int MAX = 7;
-const int MIN = 0;
-
 void loop() {
-  /*if(digitalRead(CONF_BUTTON) == 0) {
-    //increment vertical 'j' value. If at maximum, reset to minimum
-    j = (j + 1) % (MAX + 1);
-  } else if (digitalRead(LEFT_BUTTON) == 0) {
-    //increment the horizontal 'i' value. If at maximum, increment vertical 'j' instead
-    i = (i + 1) % (MAX + 1);
-    if (i == MIN) j = (j + 1) % (MAX + 1);
-  } else if (digitalRead(RIGHT_BUTTON) == 0) {
-    //decrement the horizontal 'i' value. If at minimum, decrement vertical 'j' instead
-    i = (i - 1 + (MAX + 1)) % (MAX + 1);
-    if (i == MAX) j = (j - 1 + (MAX + 1)) % (MAX + 1);
+  //avoid 'pos' going out of bounds
+  pos = (pos > STORAGE_SIZE - 1) ? 0 : (pos < 0) ? STORAGE_SIZE - 1 : pos;
+
+  for(int row=0; row<8; row++) {
+    lc.setRow(0, row, alphanumerics[pos][row]);
   }
-  lc.setLed(0, i, j, true);
-  lc.setLed(0, i, j, false);
-  delay(100);
-  */
-  int count = 0;
-  while (count < STORAGE_SIZE) {
-    for (int row=0; row<8; row++) {
-      lc.setRow(0, row, alphanumerics[count][row]);
+
+  if(digitalRead(CONF_BUTTON) == 0) {
+    for(int row=0; row<8; row++) {
+      lc.setRow(0, row, alphanumerics[0][row]);
     }
-    count++;
-    delay(100);
-    lc.clearDisplay(0);
-    delay(100);
+  } else if(digitalRead(LEFT_BUTTON) == 0) {
+    pos--;
+  } else if(digitalRead(RIGHT_BUTTON) == 0) {
+    pos++;
+  } else {
+    ; // do nothing
   }
+
+  delay(100);
 }
