@@ -146,6 +146,7 @@ void letterSelection() {
       expandArray();
     }
     messageStorage[arrPos] = pos;
+    arrPos++;
   } else if(digitalRead(LEFT_BUTTON) == 0) {
     pos--;
   } else if(digitalRead(RIGHT_BUTTON) == 0) {
@@ -157,17 +158,17 @@ void letterSelection() {
   delay(100);
 }
 
-//temp function
 void displayMessage() {
-  for (int i=0; i<arrPos; i++) {
+  for(int i=0; i<arrPos; i++) {
     lc.clearDisplay(0);
     for(int row=0; row<8; row++) {
-      lc.setRow(0, row, alphanumerics[i][row]);
+      lc.setRow(0, row, alphanumerics[messageStorage[i]][row]);
     }
-    delay(100);
+    delay(500);
   }
 
-  /*if(digitalRead(CONF_BUTTON) == 0) {
+  /* COMPLETE METHOD TO ESCAPE LOOP
+  if(digitalRead(CONF_BUTTON) == 0) {
     display = false;
     pos = 0;
   }*/
