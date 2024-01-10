@@ -10,14 +10,17 @@ int CLK = 11;
 LedControl lc = LedControl(DIN, CLK, CS, 0);
 
 int pos = 0; //for alphanumeric selection
+bool display = false; // if true, display message, else select message
+
+//message storage variables
+int* messageStorage = nullptr;
+int arraySize = 10;
+int arrPos = 0;
+
 //letter and number storage
 const int STORAGE_SIZE = 38;
 byte alphanumerics[STORAGE_SIZE][8] = {
-  { // all on
-    B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111
-  }, { // space/blank
-    B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000
-  }, { // letter A
+  { // letter A
     B00000000, B00011000, B00100100, B01000010, B01111110, B01000010, B01000010, B00000000
   }, { // letter B
     B00000000, B01111000, B01000100, B01111000, B01111000, B01000100, B01111000, B00000000
@@ -89,6 +92,10 @@ byte alphanumerics[STORAGE_SIZE][8] = {
     B00000000, B00111100, B01000010, B00111100, B01000010, B01000010, B00111100, B00000000
   }, { // number 9
     B00000000, B00111100, B01000010, B01000010, B00111110, B00000010, B00000010, B00000000
+  }, { // space/blank
+    B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000
+  }, { // tick
+    B00000000, B00000000, B00000010, B00000100, B00001000, B01010000, B00100000, B00000000
   }
 };
 
@@ -101,9 +108,24 @@ void setup() {
   pinMode(CONF_BUTTON, INPUT_PULLUP);
   pinMode(LEFT_BUTTON, INPUT_PULLUP);
   pinMode(RIGHT_BUTTON, INPUT_PULLUP);
+
+  messageStorage = new int[arraySize];
 }
 
-void loop() {
+void expandArray() {
+  int newSize = arraySize * 2;
+  int* newArray = new int[newSize];
+
+  for(int i=0; i < arraySize; i++) {
+    newArray[i] = messageStorage[i];
+  }
+
+  delete[] messageStorage;
+  messageStorage = newArray;
+  arraySize = newSize;
+}
+
+void letterSelection() {
   //avoid 'pos' going out of bounds
   pos = (pos > STORAGE_SIZE - 1) ? 0 : (pos < 0) ? STORAGE_SIZE - 1 : pos;
 
@@ -111,10 +133,19 @@ void loop() {
     lc.setRow(0, row, alphanumerics[pos][row]);
   }
 
-  if(digitalRead(CONF_BUTTON) == 0) {
+  if(digitalRead(CONF_BUTTON) == 0 && pos == STORAGE_SIZE - 1) {
+    // tick displayed & button pressed = show message
+    display = true;
+  } else if(digitalRead(CONF_BUTTON) == 0) {
     for(int row=0; row<8; row++) {
-      lc.setRow(0, row, alphanumerics[0][row]);
+      lc.setRow(0, row, alphanumerics[STORAGE_SIZE - 2][row]);
     }
+
+    //if array is close to filling up, expand it. otherwise add new letter to array
+    if(arrPos > (3 * arraySize) / 4) {
+      expandArray();
+    }
+    messageStorage[arrPos] = pos;
   } else if(digitalRead(LEFT_BUTTON) == 0) {
     pos--;
   } else if(digitalRead(RIGHT_BUTTON) == 0) {
@@ -124,4 +155,28 @@ void loop() {
   }
 
   delay(100);
+}
+
+//temp function
+void displayMessage() {
+  for (int i=0; i<arrPos; i++) {
+    lc.clearDisplay(0);
+    for(int row=0; row<8; row++) {
+      lc.setRow(0, row, alphanumerics[i][row]);
+    }
+    delay(100);
+  }
+
+  /*if(digitalRead(CONF_BUTTON) == 0) {
+    display = false;
+    pos = 0;
+  }*/
+}
+
+void loop() {
+  if(!display) {
+    letterSelection();
+  } else {
+    displayMessage();
+  }
 }
