@@ -112,6 +112,7 @@ void setup() {
   messageStorage = new int[arraySize];
 }
 
+// expand messageStorage size if message is getting too long
 void expandArray() {
   int newSize = arraySize * 2;
   int* newArray = new int[newSize];
@@ -125,7 +126,25 @@ void expandArray() {
   arraySize = newSize;
 }
 
-void letterSelection() {
+//escape display loop and clear message storage
+bool escapeDisplay(int escape) {
+  if(escape == 0) {
+    for (int i=0; i<arraySize; i++) {
+      messageStorage[i] = 0;
+    }
+    arrPos = 0;
+    pos = 0;
+    display = false;
+    delay(1000);
+
+    return true;
+  } else {
+    return false;
+  }
+}
+
+//build message to display
+void selectMessage() {
   //avoid 'pos' going out of bounds
   pos = (pos > STORAGE_SIZE - 1) ? 0 : (pos < 0) ? STORAGE_SIZE - 1 : pos;
 
@@ -158,25 +177,23 @@ void letterSelection() {
   delay(100);
 }
 
+//scroll through messageStorage, displaying each character individually
 void displayMessage() {
   for(int i=0; i<arrPos; i++) {
+    //escape display loop if CONF button pressed
+    if(escapeDisplay(digitalRead(CONF_BUTTON))) break;
+
     lc.clearDisplay(0);
     for(int row=0; row<8; row++) {
       lc.setRow(0, row, alphanumerics[messageStorage[i]][row]);
     }
     delay(500);
   }
-
-  /* COMPLETE METHOD TO ESCAPE LOOP
-  if(digitalRead(CONF_BUTTON) == 0) {
-    display = false;
-    pos = 0;
-  }*/
 }
 
 void loop() {
   if(!display) {
-    letterSelection();
+    selectMessage();
   } else {
     displayMessage();
   }
