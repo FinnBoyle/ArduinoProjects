@@ -180,15 +180,16 @@ void selectMessage() {
 //scroll through messageStorage, displaying each character individually
 void displayMessage() {
   for(int i=0; i<arrPos; i++) {
-    //escape display loop if CONF button pressed
-    if(escapeDisplay(digitalRead(CONF_BUTTON))) break;
-
     lc.clearDisplay(0);
     for(int row=0; row<8; row++) {
       lc.setRow(0, row, alphanumerics[messageStorage[i]][row]);
     }
     delay(500);
+    //escape display loop if CONF button pressed
+    if(escapeDisplay(digitalRead(CONF_BUTTON))) break;
   }
+  lc.clearDisplay(0);
+  delay(2000);
 }
 
 void loop() {
